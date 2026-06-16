@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人作品集网站 - 个人网站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a2e',
+                        secondary: '#16213e',
+                        accent: '#e94560',
+                        gold: '#d4af37',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .scroll-smooth {
+                scroll-behavior: smooth;
+            }
+            .hover-lift {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            }
+        }
+    </style>
+    <style>
+        /* 轮播图样式 */
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-slide {
+            min-width: 100%;
+            flex-shrink: 0;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.3s;
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .carousel-btn.prev {
+            left: 15px;
+        }
+        .carousel-btn.next {
+            right: 15px;
+        }
+        .carousel-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        /* IP图片不裁剪样式 */
+        .ip-image-full {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        
+        /* 堆叠卡片式轮播样式 */
+        .stack-carousel-wrapper {
+            position: relative;
+            height: 520px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .stack-carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stack-card {
+            position: absolute;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+        .stack-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        .stack-card.center {
+            z-index: 3;
+            width: 50%;
+            height: 450px;
+            transform: translateX(0) scale(1);
+        }
+        .stack-card.left-1 {
+            z-index: 2;
+            width: 35%;
+            height: 375px;
+            transform: translateX(-55%) scale(0.9);
+            opacity: 0.8;
+        }
+        .stack-card.right-1 {
+            z-index: 2;
+            width: 35%;
+            height: 375px;
+            transform: translateX(55%) scale(0.9);
+            opacity: 0.8;
+        }
+        .stack-card.left-2 {
+            z-index: 1;
+            width: 25%;
+            height: 300px;
+            transform: translateX(-90%) scale(0.8);
+            opacity: 0.5;
+        }
+        .stack-card.right-2 {
+            z-index: 1;
+            width: 25%;
+            height: 300px;
+            transform: translateX(90%) scale(0.8);
+            opacity: 0.5;
+        }
+        .stack-card.hidden-left {
+            z-index: 0;
+            width: 20%;
+            height: 250px;
+            transform: translateX(-130%) scale(0.7);
+            opacity: 0;
+        }
+        .stack-card.hidden-right {
+            z-index: 0;
+            width: 20%;
+            height: 250px;
+            transform: translateX(130%) scale(0.7);
+            opacity: 0;
+        }
+        .stack-carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #333;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        .stack-carousel-nav:hover {
+            background: #d4af37;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .stack-carousel-nav.prev {
+            left: 20px;
+        }
+        .stack-carousel-nav.next {
+            right: 20px;
+        }
+        .section-title-with-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+            max-width: 150px;
+        }
+        
+        /* 瀑布流布局 */
+        .masonry-grid {
+            column-count: 4;
+            column-gap: 20px;
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+            .stack-carousel-wrapper {
+                height: 350px;
+            }
+            .stack-card.center {
+                width: 70%;
+                height: 300px;
+            }
+            .stack-card.left-1,
+            .stack-card.right-1 {
+                width: 50%;
+                height: 250px;
+            }
+            .stack-card.left-1 {
+                transform: translateX(-40%) scale(0.9);
+            }
+            .stack-card.right-1 {
+                transform: translateX(40%) scale(0.9);
+            }
+            .stack-card.left-2,
+            .stack-card.right-2 {
+                width: 35%;
+                height: 200px;
+                opacity: 0.3;
+            }
+            .stack-carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+            .stack-carousel-nav.prev {
+                left: 10px;
+            }
+            .stack-carousel-nav.next {
+                right: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+            .stack-carousel-wrapper {
+                height: 280px;
+            }
+            .stack-card.center {
+                width: 85%;
+                height: 240px;
+            }
+            .stack-card.left-1,
+            .stack-card.right-1 {
+                width: 60%;
+                height: 200px;
+                opacity: 0.4;
+            }
+            .stack-card.left-2,
+            .stack-card.right-2 {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 scroll-smooth font-sans">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#hero" class="text-xl font-bold text-white tracking-wider">汪轶菲</a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#about" class="text-white hover:text-gold transition-colors">关于我</a>
+                    <a href="#experience" class="text-white hover:text-gold transition-colors">工作经历</a>
+                    <a href="#portfolio" class="text-white hover:text-gold transition-colors">作品集</a>
+                    <a href="#contact" class="text-white hover:text-gold transition-colors">联系我</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-primary/95 backdrop-blur-sm">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#about" class="block text-white hover:text-gold transition-colors py-2">关于我</a>
+                <a href="#experience" class="block text-white hover:text-gold transition-colors py-2">工作经历</a>
+                <a href="#portfolio" class="block text-white hover:text-gold transition-colors py-2">作品集</a>
+                <a href="#contact" class="block text-white hover:text-gold transition-colors py-2">联系我</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-primary">
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+            <div class="mb-8">
+                <img src="https://aka.doubaocdn.com/s/MkPI1waxXH" alt="汪轶菲" class="w-40 h-40 rounded-full mx-auto object-cover border-4 border-white/20 shadow-2xl">
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 text-shadow">汪轶菲</h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-6">| 视觉传达设计师 | </p>
+            <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+                专注于视觉设计、策划与执行，用设计传递文化价值，用创意连接传统与现代
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#portfolio" class="px-8 py-3 bg-gold text-primary font-semibold rounded-full hover:bg-yellow-500 transition-colors">
+                    查看作品
+                </a>
+                <a href="#contact" class="px-8 py-3 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-primary transition-colors">
+                    联系我
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#about" class="text-white/70 hover:text-white">
+                <i class="fa fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">关于我</h2>
+                <div class="w-20 h-1 bg-gold mx-auto"></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-primary mb-6">个人简介</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        毕业于南京传媒学院视觉传达设计专业，拥有丰富的活动、美术馆展览设计与品牌策划经验。
+                        擅长将传统文化元素与现代设计语言相结合，在品牌视觉系统、海报设计、文创产品开发等领域具有扎实的专业能力。
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        在金陵美术馆工作期间，独立或主导完成了多个大型艺术展览的视觉设计与现场执行工作，
+                        积累了从概念设计到落地执行的全流程经验。作品曾被院校收藏，并获得业内一致好评。
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mt-8">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-3xl font-bold text-gold">20+</div>
+                            <div class="text-gray-500 text-sm">完成项目</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-3xl font-bold text-gold">2年</div>
+                            <div class="text-gray-500 text-sm">专业经验</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-3xl font-bold text-gold">100%</div>
+                            <div class="text-gray-500 text-sm">项目落地率</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-3xl font-bold text-gold">院校</div>
+                            <div class="text-gray-500 text-sm">作品收藏</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-primary mb-6">教育背景</h3>
+                    <div class="bg-gray-50 p-6 rounded-xl mb-8">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-gold/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-graduation-cap text-gold text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-primary">南京传媒学院</h4>
+                                <p class="text-gold font-medium">视觉传达设计 · 本科</p>
+                                <p class="text-gray-500">2023.09 - 2025.06</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold text-primary mb-6">专业技能</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-700">品牌视觉设计</span>
+                                <span class="text-gold">95%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gold h-2 rounded-full" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-700">海报设计</span>
+                                <span class="text-gold">90%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gold h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-700">策划与执行</span>
+                                <span class="text-gold">88%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gold h-2 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-700">文创产品设计</span>
+                                <span class="text-gold">85%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gold h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 工作经历 -->
+    <section id="experience" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">工作经历</h2>
+                <div class="w-20 h-1 bg-gold mx-auto"></div>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <!-- 时间线 -->
+                    <div class="absolute left-0 md:left-1/2 top-0 bottom-0 w-0.5 bg-gold/30 transform md:-translate-x-1/2"></div>
+                    
+                    <div class="relative mb-12">
+                        <div class="flex flex-col md:flex-row items-start">
+                            <div class="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
+                                <span class="inline-block px-4 py-1 bg-gold text-white text-sm rounded-full mb-2">2025.08 - 2026.06</span>
+                            </div>
+                            <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-gold rounded-full transform -translate-x-1/2 mt-2 border-4 border-white shadow"></div>
+                            <div class="md:w-1/2 md:pl-12">
+                                <div class="bg-white p-6 rounded-xl shadow-lg hover-lift">
+                                    <h3 class="text-xl font-bold text-primary mb-2">金陵美术馆艺术空间</h3>
+                                    <p class="text-gold font-medium mb-4">设计 / 宣传 / 策划 / 执行</p>
+                                    <ul class="text-gray-600 space-y-2">
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa fa-check-circle text-gold mt-1"></i>
+                                            <span>负责美术馆各类展览的视觉设计，包括主视觉海报、宣传物料、导视系统等</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa fa-check-circle text-gold mt-1"></i>
+                                            <span>参与大型艺术展览的策划与现场执行，统筹设计物料的制作与落地</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa fa-check-circle text-gold mt-1"></i>
+                                            <span>负责美术馆品牌宣传推广，设计社交媒体内容与活动宣传素材</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa fa-check-circle text-gold mt-1"></i>
+                                            <span>与艺术家、策展人深度沟通，将艺术理念转化为视觉语言呈现</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa fa-check-circle text-gold mt-1"></i>
+                                            <span>开发美术馆文创周边产品，实现艺术价值的商业转化</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 作品集 -->
+    <section id="portfolio" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">作品集</h2>
+                <div class="w-20 h-1 bg-gold mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-2xl mx-auto">精选品牌设计、展览视觉、文创开发等领域的代表作品</p>
+            </div>
+
+            <!-- 作品筛选标签 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="portfolio-filter active px-6 py-2 rounded-full bg-gold text-white font-medium" data-filter="all">全部作品</button>
+                <button class="portfolio-filter px-6 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gold hover:text-white transition-colors" data-filter="brand">品牌设计</button>
+                <button class="portfolio-filter px-6 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gold hover:text-white transition-colors" data-filter="poster">海报设计</button>
+                <button class="portfolio-filter px-6 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gold hover:text-white transition-colors" data-filter="event">活动策划</button>
+            </div>
+
+            <!-- 作品一：盘城葡萄节品牌设计 - 淡紫色背景 -->
+            <div class="portfolio-item mb-20" data-category="brand">
+                <div class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-2xl p-8 md:p-12 text-white mb-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-white/20 rounded-full text-sm mb-4">品牌设计 · 团队合作</span>
+                            <h3 class="text-3xl md:text-4xl font-bold mb-4">「乡见盘城」葡萄节品牌全案设计</h3>
+                            <p class="text-purple-100 leading-relaxed mb-6">
+                                为南京盘城葡萄节打造完整品牌视觉系统，涵盖LOGO、IP形象、产品包装、活动视觉等，
+                                助力乡村文旅品牌升级，推动当地农产品品牌化发展。
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">LOGO设计</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">IP形象</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">包装设计</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">活动视觉</span>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="https://aka.doubaocdn.com/s/82PN1wbIsW" alt="乡见盘城LOGO" class="w-full max-w-xs mx-auto rounded-lg shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计思路</h4>
+                    <p class="text-gray-600 leading-relaxed">
+                        以"乡见"为核心理念，融合盘城地域特色与葡萄产业元素。LOGO采用书法笔触结合现代图形语言，
+                        传递自然质朴的乡村气质。IP形象"葡小萄"以拟人化葡萄为原型，活泼可爱具有亲和力，
+                        便于品牌传播与衍生品开发。包装设计采用环保材质与插画风格，突出产品的天然与品质感。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计成果</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">完整VI</div>
+                            <p class="text-gray-600 text-sm">建立标准化品牌视觉识别系统</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">10万+</div>
+                            <p class="text-gray-600 text-sm">活动曝光量，品牌影响力显著提升</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">30%↑</div>
+                            <p class="text-gray-600 text-sm">农产品销量同比增长</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品图片展示 -->
+                <div class="space-y-8">
+                    <h5 class="text-lg font-semibold text-primary">IP形象设计</h5>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- 新IP形象图片，保持原图完整不裁剪 -->
+                        <img src="https://aka.doubaocdn.com/s/W2yH1wbLXl" alt="葡小萄IP形象" class="ip-image-full rounded-xl shadow-lg">
+                    </div>
+
+                    <h5 class="text-lg font-semibold text-primary">包装设计展开图</h5>
+                    <!-- 包装展开图2和3位置对调：1、3、2 -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <img src="https://aka.doubaocdn.com/s/eCDD1waxXH" alt="包装展开图1" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/xBvz1waxXH" alt="包装展开图3" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/pVav1waxXH" alt="包装展开图2" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+
+                    <h5 class="text-lg font-semibold text-primary">包装设计效果图</h5>
+                    <!-- 修改1：包装效果图等比例放大，与展开图大小一致，统一宽高，间距均匀 -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <img src="https://aka.doubaocdn.com/s/bXBM1waxXH" alt="包装效果1" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/XW5c1waxXH" alt="包装效果2" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/l9cH1waxXH" alt="包装效果3" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        <img src="https://aka.doubaocdn.com/s/WCB01waxXH" alt="包装效果4" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/M9U81waxXH" alt="包装效果5" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+
+                    <!-- 修改2：活动现场照片改成堆叠卡片式轮播效果 -->
+                    <div class="section-title-with-line">
+                        <div class="section-title-line"></div>
+                        <h5 class="text-lg font-semibold text-primary">活动现场照片</h5>
+                        <div class="section-title-line"></div>
+                    </div>
+                    <div class="stack-carousel-wrapper bg-gray-50 rounded-2xl" id="stackCarousel1">
+                        <div class="stack-carousel-track" id="stackTrack1">
+                            <!-- 卡片将通过JS动态生成 -->
+                        </div>
+                        <button class="stack-carousel-nav prev" onclick="moveStackCarousel1(-1)">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="stack-carousel-nav next" onclick="moveStackCarousel1(1)">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-gray-500 text-sm mt-4">记录葡萄节现场热闹氛围，展现乡村文旅活动的精彩瞬间</p>
+                </div>
+            </div>
+
+            <!-- 作品二：中银薪喜·艺韵金陵艺术传承展 - 白金色背景 -->
+            <div class="portfolio-item mb-20" data-category="poster event">
+                <div class="bg-gradient-to-r from-white to-gray-100 rounded-2xl p-8 md:p-12 text-gray-800 mb-8 border border-gold/30">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-gold/20 rounded-full text-sm mb-4">海报设计 · 独立完成</span>
+                            <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gold">中银薪喜·艺韵金陵<br>艺术传承展</h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                儿童绘画大赛主题展览视觉设计，以传统艺术传承为核心理念，
+                                打造兼具艺术感与童趣的展览视觉系统。
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">主视觉设计</span>
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">宣传海报</span>
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">展览视觉</span>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="https://aka.doubaocdn.com/s/aBmM1waxXH" alt="主视觉海报" class="w-full rounded-lg shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计思路</h4>
+                    <p class="text-gray-600 leading-relaxed">
+                        以"薪火相传"为设计理念，将中国传统水墨元素与儿童绘画的天真烂漫相融合。
+                        主视觉采用红金配色彰显艺术传承的厚重感，系列海报运用不同的传统纹样与色彩组合，
+                        既保持整体视觉统一性，又呈现丰富的层次感。设计注重儿童视角的审美表达，
+                        让传统艺术以更亲切的方式走进大众视野。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计成果</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">500+</div>
+                            <p class="text-gray-600 text-sm">参赛作品征集，社会反响热烈</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">2万+</div>
+                            <p class="text-gray-600 text-sm">展览参观人次</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">媒体报道</div>
+                            <p class="text-gray-600 text-sm">多家主流媒体专题报道</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品图片展示 -->
+                <div class="space-y-8">
+                    <h5 class="text-lg font-semibold text-primary">宣传海报系列</h5>
+                    <!-- 两张海报上下居中摆放 -->
+                    <div class="flex flex-col items-center gap-6 max-w-2xl mx-auto">
+                        <img src="https://aka.doubaocdn.com/s/mbsD1wbKJV" alt="宣传海报1" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/6psw1waxXH" alt="宣传海报2" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+
+                    <!-- 堆叠卡片式轮播 - 活动现场 -->
+                    <div class="section-title-with-line">
+                        <div class="section-title-line"></div>
+                        <h5 class="text-lg font-semibold text-primary">活动现场照片</h5>
+                        <div class="section-title-line"></div>
+                    </div>
+                    <div class="stack-carousel-wrapper bg-gray-50 rounded-2xl" id="stackCarousel2">
+                        <div class="stack-carousel-track" id="stackTrack2">
+                            <!-- 卡片将通过JS动态生成 -->
+                        </div>
+                        <button class="stack-carousel-nav prev" onclick="moveStackCarousel2(-1)">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="stack-carousel-nav next" onclick="moveStackCarousel2(1)">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-gray-500 text-sm mt-4">记录展览现场精彩瞬间，呈现艺术传承的美好画面</p>
+                </div>
+            </div>
+
+            <!-- 作品三：2024佘村新年市集活动 -->
+            <div class="portfolio-item mb-20" data-category="event">
+                <div class="bg-gradient-to-r from-amber-600 to-orange-700 rounded-2xl p-8 md:p-12 text-white mb-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-white/20 rounded-full text-sm mb-4">活动设计 · 团队合作</span>
+                            <h3 class="text-3xl md:text-4xl font-bold mb-4">2024佘村新年市集<br>活动视觉设计</h3>
+                            <p class="text-amber-100 leading-relaxed mb-6">
+                                乡村新年主题市集全案视觉设计，融合传统年俗文化与现代市集美学，
+                                打造具有浓郁年味的沉浸式新春活动体验。
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">活动策划</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">视觉设计</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">现场执行</span>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="https://aka.doubaocdn.com/s/046i1waxXH" alt="设计预览" class="w-full rounded-lg shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计思路</h4>
+                    <p class="text-gray-600 leading-relaxed">
+                        深入挖掘佘村地域文化特色，以"乡村里的中国年"为设计主题。
+                        采用传统中国红搭配暖金色，营造喜庆热烈的新年氛围。
+                        视觉元素融入年画、剪纸、灯笼等传统年俗符号，结合现代排版手法，
+                        实现传统与现代的完美融合。现场布置注重互动体验与拍照打卡场景设计，
+                        打造社交媒体传播亮点。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计成果</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">10000+</div>
+                            <p class="text-gray-600 text-sm">活动期间人流量</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">网红打卡</div>
+                            <p class="text-gray-600 text-sm">成为南京新春热门打卡地</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">文旅示范</div>
+                            <p class="text-gray-600 text-sm">乡村文旅融合优秀案例</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品图片展示 -->
+                <div class="space-y-8">
+                    <h5 class="text-lg font-semibold text-primary">活动现场</h5>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <img src="https://aka.doubaocdn.com/s/WcpN1waxXH" alt="活动现场1" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/VV4V1waxXH" alt="活动现场2" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/rlTx1waxXH" alt="活动现场3" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/KhwP1waxXH" alt="活动现场4" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作品四：南京金箔海报及文创设计 - 黑金色背景 -->
+            <div class="portfolio-item mb-20" data-category="poster brand">
+                <div class="bg-gradient-to-r from-gray-900 to-black rounded-2xl p-8 md:p-12 text-white mb-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-gold/30 rounded-full text-sm mb-4">非遗文创 · 独立完成 · 院校收藏</span>
+                            <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gold">南京金箔非遗文化<br>海报及文创系列设计</h3>
+                            <p class="text-gray-300 leading-relaxed mb-6">
+                                以南京金箔非遗技艺为主题的创作系列，通过现代设计语言诠释传统工艺之美，
+                                作品已被院校永久收藏。
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">海报系列</span>
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">文创设计</span>
+                                <span class="px-3 py-1 bg-gold/20 rounded-full text-sm">非遗传承</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <img src="https://aka.doubaocdn.com/s/lzAo1waxXH" alt="古鸡鸣寺" class="w-full rounded-lg shadow">
+                            <img src="https://aka.doubaocdn.com/s/TesH1waxXH" alt="大报恩寺" class="w-full rounded-lg shadow">
+                            <img src="https://aka.doubaocdn.com/s/esum1waxXH" alt="栖霞寺" class="w-full rounded-lg shadow">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计思路</h4>
+                    <p class="text-gray-600 leading-relaxed">
+                        以南京金箔"薄如蝉翼、灿若云霞"的特质为设计灵感，选取南京十二处历史文化地标为载体，
+                        运用金箔特有的金属光泽与质感表现建筑的庄严与华美。海报系列采用统一的视觉语言，
+                        每幅作品以单一建筑为主体，通过黑金配色凸显金箔的璀璨质感。
+                        文创产品延伸设计涵盖生活日用多个品类，实现非遗文化的活态传承。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计成果</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">院校收藏</div>
+                            <p class="text-gray-600 text-sm">作品被南京传媒学院永久收藏</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">12幅</div>
+                            <p class="text-gray-600 text-sm">南京历史建筑主题海报系列</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">20+款</div>
+                            <p class="text-gray-600 text-sm">文创衍生品设计开发</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品图片展示 -->
+                <div class="space-y-8">
+                    <h5 class="text-lg font-semibold text-primary">海报系列作品（南京十二景）</h5>
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <img src="https://aka.doubaocdn.com/s/TesH1waxXH" alt="大报恩寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/COAd1waxXH" alt="大悲禅寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/GUks1waxXH" alt="定林寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/lzAo1waxXH" alt="古鸡鸣寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/NzHi1waxXH" alt="鼓楼" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/B40P1waxXH" alt="灵谷寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/QImv1waxXH" alt="毗卢寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/esum1waxXH" alt="栖霞寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/H9xj1waxXH" alt="清凉寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/VuBA1waxXH" alt="天界寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/x7N31waxXH" alt="玄奘寺" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/fOib1waxXH" alt="真如禅寺" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+
+                    <!-- 修改3：文创产品设计改成堆叠卡片式轮播效果 -->
+                    <div class="section-title-with-line">
+                        <div class="section-title-line"></div>
+                        <h5 class="text-lg font-semibold text-primary">文创产品设计</h5>
+                        <div class="section-title-line"></div>
+                    </div>
+                    <div class="stack-carousel-wrapper bg-gray-50 rounded-2xl" id="stackCarousel3">
+                        <div class="stack-carousel-track" id="stackTrack3">
+                            <!-- 卡片将通过JS动态生成 -->
+                        </div>
+                        <button class="stack-carousel-nav prev" onclick="moveStackCarousel3(-1)">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="stack-carousel-nav next" onclick="moveStackCarousel3(1)">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-gray-500 text-sm mt-4">南京金箔非遗文化创意衍生品，让传统工艺融入现代生活</p>
+                </div>
+            </div>
+
+            <!-- 作品五：2026盛世春光——江苏省国画院新春献礼 -->
+            <div class="portfolio-item mb-20" data-category="poster event">
+                <div class="bg-gradient-to-r from-rose-700 to-pink-800 rounded-2xl p-8 md:p-12 text-white mb-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-white/20 rounded-full text-sm mb-4">展览设计 · 独立完成</span>
+                            <h3 class="text-3xl md:text-4xl font-bold mb-4">2026盛世春光<br>江苏省国画院新春献礼大展</h3>
+                            <p class="text-rose-100 leading-relaxed mb-6">
+                                江苏省国画院年度重磅新春展览视觉设计，以专业艺术水准呈现国画艺术的时代魅力，
+                                打造省级专业美术展览标杆视觉。
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">主视觉设计</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">展览空间</span>
+                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">开幕式视觉</span>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="https://aka.doubaocdn.com/s/eOHY1waxXH" alt="展览海报" class="w-full rounded-lg shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计思路</h4>
+                    <p class="text-gray-600 leading-relaxed">
+                        以"盛世春光"为主题，取传统中国画的水墨意境与春色满园的意象。
+                        主视觉采用典雅的桃红与金色搭配，既符合新春喜庆氛围，又彰显国画艺术的高雅品格。
+                        字体设计融入书法笔意，版式留白考究，体现东方美学的空灵意境。
+                        大型户外海报与开幕式背景板注重远距离视觉冲击力与现场氛围营造，
+                        确保不同应用场景下的最佳视觉呈现效果。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-primary mb-4">设计成果</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">省级展览</div>
+                            <p class="text-gray-600 text-sm">江苏省最高级别美术展览之一</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">500+</div>
+                            <p class="text-gray-600 text-sm">国画精品集中展出</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-gold mb-2">行业认可</div>
+                            <p class="text-gray-600 text-sm">获得业内专家高度评价</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品图片展示 -->
+                <div class="space-y-8">
+                    <h5 class="text-lg font-semibold text-primary">展览视觉设计</h5>
+                    <!-- 修改4：上下排列的两张图片位置对调 -->
+                    <div class="flex flex-col items-center gap-6 max-w-3xl mx-auto mb-8">
+                        <img src="https://aka.doubaocdn.com/s/7RUV1waxXH" alt="开幕式背景板" class="w-full rounded-xl shadow-lg hover-lift">
+                        <img src="https://aka.doubaocdn.com/s/eOHY1waxXH" alt="户外大海报" class="w-full rounded-xl shadow-lg hover-lift">
+                    </div>
+                    <!-- 第二行两张图带说明文案 -->
+                    <h5 class="text-lg font-semibold text-primary">展览画册设计</h5>
+                    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        <div class="text-center">
+                            <img src="https://aka.doubaocdn.com/s/sypw1waxXH" alt="展览画册封面设计" class="w-full rounded-xl shadow-lg hover-lift mb-3">
+                            <p class="text-gray-600 font-medium">展览画册封面设计</p>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://aka.doubaocdn.com/s/jlGZ1waxXH" alt="展览画册内页排版设计" class="w-full rounded-xl shadow-lg hover-lift mb-3">
+                            <p class="text-gray-600 font-medium">展览画册内页排版设计</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他海报作品 - 瀑布流布局 -->
+            <div class="portfolio-item" data-category="poster">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-primary mb-4">其他海报作品</h3>
+                    <div class="w-16 h-1 bg-gold mx-auto"></div>
+                </div>
+                <!-- 瀑布流布局 -->
+                <div class="masonry-grid">
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/ooYP1waxXH" alt="古韵新辉1" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/UQ5j1waxXH" alt="古韵新辉2" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/fBeo1waxXH" alt="吕江·年关画马" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/n6xl1waxXH" alt="马到橙功" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/Saqr1waxXH" alt="山水骏马1" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/K9Zd1waxXH" alt="围炉煮茶1" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/qTWC1waxXH" alt="作品" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/1WG11waxXH" alt="作品" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/l3uV1waxXH" alt="心源境语1" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/uVK91waxXH" alt="心源境语2" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/nUAt1waxXH" alt="从时间到时代1" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/x3zo1waxXH" alt="从时间到时代2" class="w-full">
+                        </div>
+                    </div>
+                    <!-- 新增3张图片 -->
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/FquK1wbM1g" alt="作品" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/bcox1wbM1g" alt="汪轶菲作品" class="w-full">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="hover-lift rounded-xl overflow-hidden shadow-lg">
+                            <img src="https://aka.doubaocdn.com/s/XSrO1wbM1g" alt="第三次作业" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系方式 -->
+    <section id="contact" class="py-20 bg-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-4">联系我</h2>
+                <div class="w-20 h-1 bg-gold mx-auto mb-6"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">期待与您合作，共同创造优秀的设计作品</p>
+            </div>
+            <div class="max-w-3xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-phone text-gold text-2xl"></i>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">电话</h4>
+                        <p class="text-gray-300">18951915627</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-envelope text-gold text-2xl"></i>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">邮箱</h4>
+                        <p class="text-gray-300">2112567363@qq.com</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-map-marker text-gold text-2xl"></i>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">所在地</h4>
+                        <p class="text-gray-300">江苏 · 南京</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-secondary py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">© 2026 汪轶菲 视觉传达设计作品集. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 轮播图功能
+        const carousels = {};
+        
+        function initCarousel(carouselId) {
+            const container = document.getElementById(carouselId);
+            const track = container.querySelector('.carousel-track');
+            const slides = container.querySelectorAll('.carousel-slide');
+            const indicatorsContainer = document.getElementById(carouselId + '-indicators');
+            const totalSlides = slides.length;
+            
+            carousels[carouselId] = {
+                currentIndex: 0,
+                totalSlides: totalSlides,
+                autoPlayInterval: null
+            };
+            
+            // 创建指示器
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(carouselId, i);
+                indicatorsContainer.appendChild(dot);
+            }
+            
+            // 启动自动轮播
+            startAutoPlay(carouselId);
+            
+            // 鼠标悬停暂停自动轮播
+            container.addEventListener('mouseenter', () => stopAutoPlay(carouselId));
+            container.addEventListener('mouseleave', () => startAutoPlay(carouselId));
+        }
+        
+        function moveCarousel(carouselId, direction) {
+            const carousel = carousels[carouselId];
+            let newIndex = carousel.currentIndex + direction;
+            
+            if (newIndex < 0) newIndex = carousel.totalSlides - 1;
+            if (newIndex >= carousel.totalSlides) newIndex = 0;
+            
+            goToSlide(carouselId, newIndex);
+        }
+        
+        function goToSlide(carouselId, index) {
+            const carousel = carousels[carouselId];
+            const container = document.getElementById(carouselId);
+            const track = container.querySelector('.carousel-track');
+            const dots = container.querySelectorAll('.carousel-dot');
+            
+            carousel.currentIndex = index;
+            track.style.transform = `translateX(-${index * 100}%)`;
+            
+            // 更新指示器
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+        
+        function startAutoPlay(carouselId) {
+            carousels[carouselId].autoPlayInterval = setInterval(() => {
+                moveCarousel(carouselId, 1);
+            }, 4000);
+        }
+        
+        function stopAutoPlay(carouselId) {
+            clearInterval(carousels[carouselId].autoPlayInterval);
+        }
+
+        // 堆叠卡片轮播功能 - 作品一活动现场
+        const stackImages1 = [
+            'https://aka.doubaocdn.com/s/hgbc1waxXH',
+            'https://aka.doubaocdn.com/s/CCIy1waxXH',
+            'https://aka.doubaocdn.com/s/0L7K1waxXH',
+            'https://aka.doubaocdn.com/s/UF6b1waxXH',
+            'https://aka.doubaocdn.com/s/fmW71waxXH',
+            'https://aka.doubaocdn.com/s/MSdD1waxXH',
+            'https://aka.doubaocdn.com/s/VCBo1waxXH',
+            'https://aka.doubaocdn.com/s/uxO61waxXH',
+            'https://aka.doubaocdn.com/s/IAwo1waxXH'
+        ];
+        let stackCurrentIndex1 = 0;
+        let stackAutoPlayInterval1;
+
+        function initStackCarousel1() {
+            const track = document.getElementById('stackTrack1');
+            track.innerHTML = '';
+            
+            const positions = ['hidden-left', 'left-2', 'left-1', 'center', 'right-1', 'right-2', 'hidden-right'];
+            
+            for (let i = 0; i < 7; i++) {
+                const imgIndex = (stackCurrentIndex1 + i - 2 + stackImages1.length) % stackImages1.length;
+                const card = document.createElement('div');
+                card.className = `stack-card ${positions[i]}`;
+                card.innerHTML = `<img src="${stackImages1[imgIndex]}" alt="活动现场">`;
+                card.onclick = () => {
+                    if (positions[i] === 'left-1') moveStackCarousel1(-1);
+                    if (positions[i] === 'right-1') moveStackCarousel1(1);
+                };
+                track.appendChild(card);
+            }
+        }
+
+        function moveStackCarousel1(direction) {
+            stackCurrentIndex1 = (stackCurrentIndex1 + direction + stackImages1.length) % stackImages1.length;
+            initStackCarousel1();
+        }
+
+        function startStackAutoPlay1() {
+            stackAutoPlayInterval1 = setInterval(() => {
+                moveStackCarousel1(1);
+            }, 3500);
+        }
+
+        function stopStackAutoPlay1() {
+            clearInterval(stackAutoPlayInterval1);
+        }
+
+        // 堆叠卡片轮播功能 - 作品二活动现场
+        const stackImages2 = [
+            'https://aka.doubaocdn.com/s/cuBh1waxXH',
+            'https://aka.doubaocdn.com/s/FdD71waxXH',
+            'https://aka.doubaocdn.com/s/q5ik1waxXH',
+            'https://aka.doubaocdn.com/s/GSB91waxXH',
+            'https://aka.doubaocdn.com/s/PZNl1waxXH',
+            'https://aka.doubaocdn.com/s/gjbK1wbKJV',
+            'https://aka.doubaocdn.com/s/EaZd1wbKJV',
+            'https://aka.doubaocdn.com/s/N7Bf1wbKJV'
+        ];
+        let stackCurrentIndex2 = 0;
+        let stackAutoPlayInterval2;
+
+        function initStackCarousel2() {
+            const track = document.getElementById('stackTrack2');
+            track.innerHTML = '';
+            
+            const positions = ['hidden-left', 'left-2', 'left-1', 'center', 'right-1', 'right-2', 'hidden-right'];
+            
+            for (let i = 0; i < 7; i++) {
+                const imgIndex = (stackCurrentIndex2 + i - 2 + stackImages2.length) % stackImages2.length;
+                const card = document.createElement('div');
+                card.className = `stack-card ${positions[i]}`;
+                card.innerHTML = `<img src="${stackImages2[imgIndex]}" alt="活动现场">`;
+                card.onclick = () => {
+                    if (positions[i] === 'left-1') moveStackCarousel2(-1);
+                    if (positions[i] === 'right-1') moveStackCarousel2(1);
+                };
+                track.appendChild(card);
+            }
+        }
+
+        function moveStackCarousel2(direction) {
+            stackCurrentIndex2 = (stackCurrentIndex2 + direction + stackImages2.length) % stackImages2.length;
+            initStackCarousel2();
+        }
+
+        function startStackAutoPlay2() {
+            stackAutoPlayInterval2 = setInterval(() => {
+                moveStackCarousel2(1);
+            }, 3500);
+        }
+
+        function stopStackAutoPlay2() {
+            clearInterval(stackAutoPlayInterval2);
+        }
+
+        // 堆叠卡片轮播功能 - 作品四文创
+        const stackImages3 = [
+            'https://aka.doubaocdn.com/s/Z7qt1wbLXl',
+            'https://aka.doubaocdn.com/s/YGMl1wbLXl',
+            'https://aka.doubaocdn.com/s/xdSV1wbLXl',
+            'https://aka.doubaocdn.com/s/76YH1wbLXl',
+            'https://aka.doubaocdn.com/s/Hnoh1wbLXl',
+            'https://aka.doubaocdn.com/s/yqHO1wbLXl'
+        ];
+        let stackCurrentIndex3 = 0;
+        let stackAutoPlayInterval3;
+
+        function initStackCarousel3() {
+            const track = document.getElementById('stackTrack3');
+            track.innerHTML = '';
+            
+            const positions = ['hidden-left', 'left-2', 'left-1', 'center', 'right-1', 'right-2', 'hidden-right'];
+            
+            for (let i = 0; i < 7; i++) {
+                const imgIndex = (stackCurrentIndex3 + i - 2 + stackImages3.length) % stackImages3.length;
+                const card = document.createElement('div');
+                card.className = `stack-card ${positions[i]}`;
+                card.innerHTML = `<img src="${stackImages3[imgIndex]}" alt="文创产品">`;
+                card.onclick = () => {
+                    if (positions[i] === 'left-1') moveStackCarousel3(-1);
+                    if (positions[i] === 'right-1') moveStackCarousel3(1);
+                };
+                track.appendChild(card);
+            }
+        }
+
+        function moveStackCarousel3(direction) {
+            stackCurrentIndex3 = (stackCurrentIndex3 + direction + stackImages3.length) % stackImages3.length;
+            initStackCarousel3();
+        }
+
+        function startStackAutoPlay3() {
+            stackAutoPlayInterval3 = setInterval(() => {
+                moveStackCarousel3(1);
+            }, 3500);
+        }
+
+        function stopStackAutoPlay3() {
+            clearInterval(stackAutoPlayInterval3);
+        }
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('bg-primary/95', 'backdrop-blur-sm', 'shadow-lg');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('bg-primary/95', 'backdrop-blur-sm', 'shadow-lg');
+                navbar.classList.add('bg-transparent');
+            }
+        });
+
+        // 移动端菜单
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // 点击菜单项关闭移动端菜单
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+
+        // 作品筛选功能
+        document.querySelectorAll('.portfolio-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 更新按钮状态
+                document.querySelectorAll('.portfolio-filter').forEach(b => {
+                    b.classList.remove('bg-gold', 'text-white');
+                    b.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+                this.classList.add('bg-gold', 'text-white');
+
+                // 筛选作品
+                const filter = this.dataset.filter;
+                document.querySelectorAll('.portfolio-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.category.includes(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initStackCarousel1();
+            initStackCarousel2();
+            initStackCarousel3();
+            startStackAutoPlay1();
+            startStackAutoPlay2();
+            startStackAutoPlay3();
+            
+            // 堆叠轮播鼠标悬停暂停
+            const stackWrapper1 = document.getElementById('stackCarousel1');
+            stackWrapper1.addEventListener('mouseenter', stopStackAutoPlay1);
+            stackWrapper1.addEventListener('mouseleave', startStackAutoPlay1);
+            
+            const stackWrapper2 = document.getElementById('stackCarousel2');
+            stackWrapper2.addEventListener('mouseenter', stopStackAutoPlay2);
+            stackWrapper2.addEventListener('mouseleave', startStackAutoPlay2);
+            
+            const stackWrapper3 = document.getElementById('stackCarousel3');
+            stackWrapper3.addEventListener('mouseenter', stopStackAutoPlay3);
+            stackWrapper3.addEventListener('mouseleave', startStackAutoPlay3);
+        });
+    </script>
+</body>
+</html>
